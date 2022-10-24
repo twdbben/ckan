@@ -31,7 +31,8 @@ class MailerException(Exception):
 
 def _mail_recipient(recipient_name, recipient_email,
                     sender_name, sender_url, subject,
-                    body, body_html=None, headers=None):
+                    body, body_html=None, headers=None,
+                    cc=None, bcc=None):
 
     if not headers:
         headers = {}
@@ -59,7 +60,7 @@ def _mail_recipient(recipient_name, recipient_email,
     msg['To'] = u"%s <%s>" % (recipient_name, recipient_email)
     msg['Date'] = utils.formatdate(time())
     msg['X-Mailer'] = "CKAN %s" % ckan.__version__
-    if reply_to and reply_to != '':
+    if reply_to and reply_to != '' and not msg['Reply-to']:
         msg['Reply-to'] = reply_to
 
     # Send the email using Python's smtplib.
@@ -104,7 +105,9 @@ def _mail_recipient(recipient_name, recipient_email,
                                    "smtp.password must be configured as well.")
             smtp_connection.login(smtp_user, smtp_password)
 
-        smtp_connection.sendmail(mail_from, [recipient_email], msg.as_string())
+        recipients = [recipient_email] + cc + bcc
+
+        smtp_connection.sendmail(mail_from, recipients, msg.as_string())
         log.info("Sent email to {0}".format(recipient_email))
 
     except smtplib.SMTPException as e:
@@ -116,13 +119,15 @@ def _mail_recipient(recipient_name, recipient_email,
 
 
 def mail_recipient(recipient_name, recipient_email, subject,
-                   body, body_html=None, headers={}):
+                   body, body_html=None, headers={},
+                   cc=[], bcc=[]):
     '''Sends an email'''
     site_title = config.get('ckan.site_title')
     site_url = config.get('ckan.site_url')
     return _mail_recipient(recipient_name, recipient_email,
                            site_title, site_url, subject, body,
-                           body_html=body_html, headers=headers)
+                           body_html=body_html, headers=headers,
+                           cc=cc, bcc=bcc)
 
 
 def mail_user(recipient, subject, body, body_html=None, headers={}):
