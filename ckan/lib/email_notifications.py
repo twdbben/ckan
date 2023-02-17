@@ -106,9 +106,13 @@ def _notifications_for_activities(activities, user_dict):
     body = base.render(
             'activity_streams/activity_stream_email_notifications.text',
             extra_vars={'activities': activities})
+    body_html = base.render(
+            'activity_streams/activity_stream_email_notifications.html',
+            extra_vars={'activities': activities})
     notifications = [{
         'subject': subject,
-        'body': body
+        'body': body,
+        'body_html': body_html
         }]
 
     return notifications
@@ -179,7 +183,7 @@ def send_notification(user, email_dict):
 
     try:
         ckan.lib.mailer.mail_recipient(user['display_name'], user['email'],
-                email_dict['subject'], email_dict['body'])
+                email_dict['subject'], email_dict['body'], email_dict['body_html'])
     except ckan.lib.mailer.MailerException:
         raise
 
