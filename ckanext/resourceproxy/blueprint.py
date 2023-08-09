@@ -68,7 +68,15 @@ def proxy_resource(context, data_dict):
         if not did_get:
             r = requests.get(url, timeout=TIMEOUT, stream=True)
 
-        response.headers[u'content-type'] = r.headers[u'content-type']
+        if 'content-type' in r.headers:
+            response.headers[u'content-type'] = r.headers[u'content-type']
+        else:
+            return abort(
+                409, (
+                u'"content-type" header not found.'
+                )
+            )
+
         response.charset = r.encoding
 
         length = 0
