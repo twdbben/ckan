@@ -484,14 +484,33 @@ def read(package_type, id):
                              id=pkg_dict['name'],
                              activity_id=activity_id)
 
-    # can the resources be previewed?
-    for resource in pkg_dict[u'resources']:
-        resource_views = get_action(u'resource_view_list')(
-            context, {
-                u'id': resource[u'id']
-            }
-        )
-        resource[u'has_views'] = len(resource_views) > 0
+    if len( pkg_dict[u'resources'] ) > 0:
+        # can the resources be previewed?
+        for resource in pkg_dict[u'resources']:
+            resource_views = get_action(u'resource_view_list')(
+                context, {
+                    u'id': resource[u'id']
+                }
+            )
+            resource[u'has_views'] = len(resource_views) > 0
+
+            resource[u'resource_views'] = resource_views
+
+            current_resource_view = None
+            view_id = request.args.get(u'view_id')
+            if resource[u'has_views']:
+                if view_id:
+                    current_resource_view = [
+                        rv for rv in resource_views if rv[u'id'] == view_id
+                    ]
+                    if len(current_resource_view) == 1:
+                        current_resource_view = current_resource_view[0]
+                    else:
+                        return base.abort(404, _(u'Resource view not found'))
+                else:
+                    current_resource_view = resource_views[0]
+    else:
+        current_resource_view = None
 
     package_type = pkg_dict[u'type'] or package_type
     _setup_template_variables(context, {u'id': id}, package_type=package_type)
@@ -500,6 +519,7 @@ def read(package_type, id):
     try:
         return base.render(
             template, {
+                u'current_resource_view': current_resource_view,
                 u'dataset_type': package_type,
                 u'pkg_dict': pkg_dict,
                 u'pkg': pkg,  # NB deprecated - it is the current version of
