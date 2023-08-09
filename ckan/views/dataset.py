@@ -509,6 +509,7 @@ def read(package_type, id):
                         return base.abort(404, _(u'Resource view not found'))
                 else:
                     current_resource_view = resource_views[0]
+                break
     else:
         current_resource_view = None
 
