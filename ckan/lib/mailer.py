@@ -134,7 +134,7 @@ def mail_user(recipient, subject, body, body_html=None, headers={}):
                    body, body_html=body_html, headers=headers)
 
 
-def get_reset_link_body(user):
+def get_reset_link_body(user, kind='txt'):
     extra_vars = {
         'reset_link': get_reset_link(user),
         'site_title': config.get('ckan.site_title'),
@@ -142,10 +142,10 @@ def get_reset_link_body(user):
         'user_name': user.name,
     }
     # NOTE: This template is translated
-    return render('emails/reset_password.txt', extra_vars)
+    return render('emails/reset_password.' + kind, extra_vars)
 
 
-def get_invite_body(user, group_dict=None, role=None):
+def get_invite_body(user, group_dict=None, role=None, kind='txt'):
     if group_dict:
         group_type = (_('organization') if group_dict['is_organization']
                       else _('group'))
@@ -163,7 +163,7 @@ def get_invite_body(user, group_dict=None, role=None):
         extra_vars['group_title'] = group_dict.get('title')
 
     # NOTE: This template is translated
-    return render('emails/invite_user.txt', extra_vars)
+    return render('emails/invite_user.' + kind, extra_vars)
 
 
 def get_reset_link(user):
@@ -176,7 +176,8 @@ def get_reset_link(user):
 
 def send_reset_link(user):
     create_reset_key(user)
-    body = get_reset_link_body(user)
+    body = get_reset_link_body(user, 'txt')
+    body_html = get_reset_link_body(user, 'html')
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
@@ -185,12 +186,13 @@ def send_reset_link(user):
     # Make sure we only use the first line
     subject = subject.split('\n')[0]
 
-    mail_user(user, subject, body)
+    mail_user(user, subject, body, body_html)
 
 
 def send_invite(user, group_dict=None, role=None):
     create_reset_key(user)
-    body = get_invite_body(user, group_dict, role)
+    body = get_invite_body(user, group_dict, role, 'txt')
+    body_html = get_invite_body(user, group_dict, role, 'html')
     extra_vars = {
         'site_title': config.get('ckan.site_title')
     }
@@ -199,7 +201,7 @@ def send_invite(user, group_dict=None, role=None):
     # Make sure we only use the first line
     subject = subject.split('\n')[0]
 
-    mail_user(user, subject, body)
+    mail_user(user, subject, body, body_html)
 
 
 def create_reset_key(user):
