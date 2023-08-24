@@ -1953,7 +1953,8 @@ def package_search(context, data_dict):
             else:
                 new_facet_dict['display_name'] = key_
             new_facet_dict['count'] = value_
-            restructured_facets[key]['items'].append(new_facet_dict)
+            if key_ != 'JPEG':
+                restructured_facets[key]['items'].append(new_facet_dict)
     search_results['search_facets'] = restructured_facets
 
     # check if some extension needs to modify the search results
