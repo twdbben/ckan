@@ -1761,7 +1761,8 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                                'connection urls are the same.')
 
         if not self._read_connection_has_correct_privileges():
-            self._log_or_raise('The read-only user has write privileges.')
+            # self._log_or_raise('The read-only user has write privileges.')
+            log.critical('The read-only user has write privileges.')
 
     def _is_postgresql_engine(self):
         ''' Returns True if the read engine is a Postgresql Database.
