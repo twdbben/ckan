@@ -1757,9 +1757,10 @@ class DatastorePostgresqlBackend(DatastoreBackend):
                 'CKAN and DataStore database cannot be the same.')
 
         if self._same_read_and_write_url():
-            self._log_or_raise('The write and read-only database '
+            # self._log_or_raise('The write and read-only database '
+            #                    'connection urls are the same.')
+            log.critical('The write and read-only database '
                                'connection urls are the same.')
-
         if not self._read_connection_has_correct_privileges():
             # self._log_or_raise('The read-only user has write privileges.')
             log.critical('The read-only user has write privileges.')
